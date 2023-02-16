@@ -39,18 +39,18 @@ export default function PlayerScreen() {
   //   }, [currentSong]);
 
   ///////////////////////////////////////////////////////////
-const [sound, setSound] = useState();
-const playPause = async () => {
-  // try {
-  //   if (isPlaying) {
-  //     await soundObject.current.pauseAsync();
-  //   } else {
-  //     await soundObject.current.playAsync();
-  //   }
-  //   setIsPlaying(!isPlaying);
-  // } catch (error) {
-  //   console.log(error);
-  // }
+  const [sound, setSound] = useState();
+  const playPause = async () => {
+    // try {
+    //   if (isPlaying) {
+    //     await soundObject.current.pauseAsync();
+    //   } else {
+    //     await soundObject.current.playAsync();
+    //   }
+    //   setIsPlaying(!isPlaying);
+    // } catch (error) {
+    //   console.log(error);
+    // }
 
 
     const { sound: audioSound } = await Audio.Sound.createAsync(songs[songIndex].url);
@@ -64,25 +64,25 @@ const playPause = async () => {
         await audioSound.playAsync();
       }
 
-    // await audioSound.playAsync();
-    setIsPlaying(!isPlaying);
-    // setCurrentSong(index);
-  } catch (error) {
-    console.log("error inside playpause", message.error);
-  }
-};
-
-
-useEffect(() => {
-  return sound
-    ? () => {
-      console.log('Unloading Sound');
-      sound.unloadAsync();
+      // await audioSound.playAsync();
+      setIsPlaying(!isPlaying);
+      // setCurrentSong(index);
+    } catch (error) {
+      console.log("error inside playpause", message.error);
     }
-    : undefined;
-}, [sound]);
+  };
 
-////////////////////////////////////////////////////////////////////
+
+  useEffect(() => {
+    return sound
+      ? () => {
+        console.log('Unloading Sound');
+        sound.unloadAsync();
+      }
+      : undefined;
+  }, [sound]);
+
+  ////////////////////////////////////////////////////////////////////
   // const playPause = async () => {
   //   try {
   //     if (isPlaying) {
@@ -96,9 +96,9 @@ useEffect(() => {
   //   }
   // };
   useEffect(() => {
-      if (isPlaying) (
-        playPause()
-        );
+    if (isPlaying) (
+      playPause()
+    );
     //     try {
     //       await sound.playAsync();
     //     } catch (error) {
@@ -106,9 +106,9 @@ useEffect(() => {
     //     }
     //   }
     // };
-  
+
   }, [songIndex]);
-  
+
 
   useEffect(() => {
     // position.addListener(({ value }) => {
@@ -118,7 +118,9 @@ useEffect(() => {
     scrollX.addListener(({ value }) => {
       const val = Math.round(value / width);
 
-      setSongIndex(val);
+      if (val !== songIndex) {
+        setSongIndex(val);
+      }
     });
 
 
@@ -144,19 +146,21 @@ useEffect(() => {
 
 
   const goNext = async () => {
+    const nextIndex =
+      songIndex === songs.length - 1 ? 0 : (songIndex + 1); // % songs.length;
+
     slider.current.scrollToOffset({
-      offset: (songIndex + 1) * width,
+      offset: (nextIndex) * width,
     });
-  
+
     try {
       if (sound) {
         await sound.unloadAsync();
         setIsPlaying(false);
       }
-  
-      const nextIndex = 
-      songIndex === songs.length - 1 ? 0 : (songIndex + 1); // % songs.length;
-  
+
+
+
       setCurrentSong(nextIndex);
       const { sound: audioSound } = await Audio.Sound.createAsync(
         songs[nextIndex].url
@@ -164,28 +168,30 @@ useEffect(() => {
       setSound(audioSound);
 
       if (isPlaying) (
-      await audioSound.playAsync(),
-      setIsPlaying(true)
+        await audioSound.playAsync(),
+        setIsPlaying(true)
       );
     } catch (error) {
       console.log(error);
     }
   };
-  
+
   const goPrv = async () => {
+    const prevIndex =
+      songIndex === 0 ? songs.length - 1 : (songIndex - 1); // % songs.length;
+
     slider.current.scrollToOffset({
-      offset: (songIndex - 1) * width,
+      offset: (prevIndex) * width,
     });
-  
+
     try {
       if (sound) {
         await sound.unloadAsync();
         setIsPlaying(false);
       }
-  
-      const prevIndex =
-        songIndex === 0 ? songs.length - 1 : (songIndex - 1); // % songs.length;
-  
+
+
+
       setCurrentSong(prevIndex);
       const { sound: audioSound } = await Audio.Sound.createAsync(
         songs[prevIndex].url
@@ -193,15 +199,15 @@ useEffect(() => {
       setSound(audioSound);
 
       if (isPlaying) (
-      await audioSound.playAsync(),
-      setIsPlaying(true)
+        await audioSound.playAsync(),
+        setIsPlaying(true)
       );
 
     } catch (error) {
       console.log(error);
     }
   };
-  
+
 
 
   // const goPrv = async () => {
@@ -278,8 +284,8 @@ useEffect(() => {
         <Text style={styles.artist}>{songs[songIndex].artist}</Text>
       </View>
 
-      <Controller onNext={goNext} onPrv={goPrv} onPlayPause={playPause} isPlaying={isPlaying}/>
-      
+      <Controller onNext={goNext} onPrv={goPrv} onPlayPause={playPause} isPlaying={isPlaying} />
+
     </SafeAreaView>
   );
 }
