@@ -9,68 +9,9 @@ import {
   Animated,
   StyleSheet,
 } from "react-native";
-
-// import { TrackPlayer } from "react-native-track-player";
-// import { setupPlayer, addTracks } from './trackPlayerServices';
-// import songs from "./data";
+import songs from "./data";
 import Controller from "./Controller";
 import { Audio } from 'expo-av';
-
-
-const songs = [
-  {
-    title: 'death bed',
-    artist: 'Powfu',
-    artwork: require('../assets/album-arts/death-bed.jpg'),
-    url: require('../src/mp3/lighthouse.wav'),
-    duration: 2 * 60 + 53,
-    id: '1',
-  },
-  {
-    title: 'bad liar',
-    artist: 'Imagine Dragons',
-    artwork: require('../assets/album-arts/bad-liar.jpg'),
-    url: require('../src/mp3/ember.wav'),
-    duration: 2 * 60,
-    id: '2',
-  },
-  {
-    title: 'faded',
-    artist: 'Alan Walker',
-    artwork: require('../assets/album-arts/faded.jpg'),
-    url: 'https://sample-music.netlify.app/Faded.mp3',
-    duration: 2 * 60,
-    id: '3',
-  },
-  {
-    title: 'hate me',
-    artist: 'Ellie Goulding',
-    artwork: require('../assets/album-arts/hate-me.jpg'),
-    url: 'https://sample-music.netlify.app/Hate%20Me.mp3',
-    duration: 2 * 60,
-    id: '4',
-  },
-  {
-    title: 'Solo',
-    artist: 'Clean Bandit',
-    artwork: require('../assets/album-arts/solo.jpg'),
-    url: 'https://sample-music.netlify.app/Solo.mp3',
-    duration: 2 * 60,
-    id: '5',
-  },
-  {
-    title: 'without me',
-    artist: 'Halsey',
-    artwork: require('../assets/album-arts/without-me.jpg'),
-    url: 'https://sample-music.netlify.app/Without%20Me.mp3',
-    duration: 2 * 60,
-    id: '6',
-  },
-];
-
-//why is the audio not loading?
-// const soundObject = new Audio.Sound();
-
 
 const { width, height } = Dimensions.get("window");
 
@@ -99,7 +40,7 @@ export default function PlayerScreen() {
 
   ///////////////////////////////////////////////////////////
 const [sound, setSound] = useState();
-const playSound = async (index) => {
+const playPause = async (index) => {
   // try {
   //   if (isPlaying) {
   //     await soundObject.current.pauseAsync();
@@ -132,7 +73,7 @@ const playSound = async (index) => {
 };
 
 
-React.useEffect(() => {
+useEffect(() => {
   return sound
     ? () => {
       console.log('Unloading Sound');
@@ -142,18 +83,32 @@ React.useEffect(() => {
 }, [sound]);
 
 ////////////////////////////////////////////////////////////////////
-  const playPause = async () => {
-    try {
-      if (isPlaying) {
-        await soundObject.current.pauseAsync();
-      } else {
-        await soundObject.current.playAsync();
-      }
-      setIsPlaying(!isPlaying);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const playPause = async () => {
+  //   try {
+  //     if (isPlaying) {
+  //       await soundObject.current.pauseAsync();
+  //     } else {
+  //       await soundObject.current.playAsync();
+  //     }
+  //     setIsPlaying(!isPlaying);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+  useEffect(() => {
+      if (isPlaying) (
+        playPause()
+        );
+    //     try {
+    //       await sound.playAsync();
+    //     } catch (error) {
+    //       console.log(error);
+    //     }
+    //   }
+    // };
+  
+  }, [songIndex]);
+  
 
   useEffect(() => {
     // position.addListener(({ value }) => {
@@ -192,47 +147,86 @@ React.useEffect(() => {
     slider.current.scrollToOffset({
       offset: (songIndex + 1) * width,
     });
+  
     try {
-      if (soundObject.current) {
-        await soundObject.current.unloadAsync();
-        isPlaying && setIsPlaying(!isPlaying);
+      if (sound) {
+        await sound.unloadAsync();
+        setIsPlaying(false);
       }
-      const nextIndex = (currentSong + 1) % songs.length;
+  
+      const nextIndex = 
+      songIndex === songs.length - 1 ? 0 : (songIndex + 1); // % songs.length;
+  
       setCurrentSong(nextIndex);
-      soundObject.current = new Audio.Sound(songs[nextIndex].url, null, error => {
-        if (error) {
-          console.log(error);
-        }
-      });
-      await soundObject.current.loadAsync();
-      await soundObject.current.playAsync();
+      const { sound: audioSound } = await Audio.Sound.createAsync(
+        songs[nextIndex].url
+      );
+      setSound(audioSound);
+
+      if (isPlaying) (
+      await audioSound.playAsync(),
+      setIsPlaying(true)
+      );
     } catch (error) {
       console.log(error);
     }
   };
+  
   const goPrv = async () => {
     slider.current.scrollToOffset({
       offset: (songIndex - 1) * width,
     });
-
+  
     try {
-      if (soundObject.current) {
-        await soundObject.current.unloadAsync();
-        isPlaying && setIsPlaying(!isPlaying);
+      if (sound) {
+        await sound.unloadAsync();
+        setIsPlaying(false);
       }
-      const prevIndex = currentSong === 0 ? songs.length - 1 : (currentSong - 1) % songs.length;
+  
+      const prevIndex =
+        songIndex === 0 ? songs.length - 1 : (songIndex - 1); // % songs.length;
+  
       setCurrentSong(prevIndex);
-      soundObject.current = new Audio.Sound(songs[nextIndex].url, null, error => {
-        if (error) {
-          console.log(error);
-        }
-      });
-      await soundObject.current.loadAsync();
-      await soundObject.current.playAsync();
+      const { sound: audioSound } = await Audio.Sound.createAsync(
+        songs[prevIndex].url
+      );
+      setSound(audioSound);
+
+      if (isPlaying) (
+      await audioSound.playAsync(),
+      setIsPlaying(true)
+      );
+
     } catch (error) {
       console.log(error);
     }
   };
+  
+
+
+  // const goPrv = async () => {
+  //   slider.current.scrollToOffset({
+  //     offset: (songIndex - 1) * width,
+  //   });
+
+  //   try {
+  //     if (soundObject.current) {
+  //       await soundObject.current.unloadAsync();
+  //       isPlaying && setIsPlaying(!isPlaying);
+  //     }
+  //     const prevIndex = currentSong === 0 ? songs.length - 1 : (currentSong - 1) % songs.length;
+  //     setCurrentSong(prevIndex);
+  //     soundObject.current = new Audio.Sound(songs[nextIndex].url, null, error => {
+  //       if (error) {
+  //         console.log(error);
+  //       }
+  //     });
+  //     await soundObject.current.loadAsync();
+  //     await soundObject.current.playAsync();
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
 
   const renderItem = ({ index, item }) => {
@@ -284,7 +278,7 @@ React.useEffect(() => {
         <Text style={styles.artist}>{songs[songIndex].artist}</Text>
       </View>
 
-      <Controller onNext={goNext} onPrv={goPrv} onPlayPause={playSound} isPlaying={isPlaying}/>
+      <Controller onNext={goNext} onPrv={goPrv} onPlayPause={playPause} isPlaying={isPlaying}/>
       
     </SafeAreaView>
   );
