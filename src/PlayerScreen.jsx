@@ -30,7 +30,7 @@ const songs = [
     title: 'bad liar',
     artist: 'Imagine Dragons',
     artwork: require('../assets/album-arts/bad-liar.jpg'),
-    url: 'https://sample-music.netlify.app/Bad%20Liar.mp3',
+    url: require('../src/mp3/ember.wav'),
     duration: 2 * 60,
     id: '2',
   },
@@ -96,16 +96,26 @@ export default function PlayerScreen() {
   //       }
   //     })();
   //   }, [currentSong]);
-const [sound, setSound] = React.useState();
-const playSound = async() => {
-  const { sound: audioSound } = await Audio.Sound.createAsync(require('../src/mp3/lighthouse.wav'));
-  console.log(audioSound);
-  setSound(audioSound);
-  console.log(audioSound);
 
-  console.log('Playing Sound');
-  await audioSound.playAsync();
-}
+  ///////////////////////////////////////////////////////////
+const [sound, setSound] = React.useState();
+const playSound = async (index) => {
+  try {
+    if (sound) {
+      await sound.unloadAsync();
+    }
+
+    const { sound: audioSound } = await Audio.Sound.createAsync(songs[songIndex].url);
+    setSound(audioSound);
+
+    await audioSound.playAsync();
+    setIsPlaying(true);
+    setCurrentSong(index);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 
 React.useEffect(() => {
   return sound
@@ -116,7 +126,7 @@ React.useEffect(() => {
     : undefined;
 }, [sound]);
 
-
+////////////////////////////////////////////////////////////////////
   const playPause = async () => {
     try {
       if (isPlaying) {
@@ -260,6 +270,7 @@ React.useEffect(() => {
       </View>
 
       <Controller onNext={goNext} onPrv={goPrv} onPlayPause={playSound} />
+      
     </SafeAreaView>
   );
 }
