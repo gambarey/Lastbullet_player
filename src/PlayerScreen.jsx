@@ -85,7 +85,7 @@ export default function PlayerScreen() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSong, setCurrentSong] = useState(0);
   // const {soundObject} = useRef(Audio.Sound.createAsync());
-  // console.log(soundObject.current);
+  // // console.log(soundObject.current);
 
   // useEffect(() => {
   //     (async () => {
@@ -98,21 +98,36 @@ export default function PlayerScreen() {
   //   }, [currentSong]);
 
   ///////////////////////////////////////////////////////////
-const [sound, setSound] = React.useState();
+const [sound, setSound] = useState();
 const playSound = async (index) => {
-  try {
-    if (sound) {
-      await sound.unloadAsync();
-    }
+  // try {
+  //   if (isPlaying) {
+  //     await soundObject.current.pauseAsync();
+  //   } else {
+  //     await soundObject.current.playAsync();
+  //   }
+  //   setIsPlaying(!isPlaying);
+  // } catch (error) {
+  //   console.log(error);
+  // }
+
 
     const { sound: audioSound } = await Audio.Sound.createAsync(songs[songIndex].url);
     setSound(audioSound);
 
-    await audioSound.playAsync();
-    setIsPlaying(true);
+    try {
+      if (isPlaying) {
+        await audioSound.pauseAsync();
+      }
+      else {
+        await audioSound.playAsync();
+      }
+
+    // await audioSound.playAsync();
+    setIsPlaying(!isPlaying);
     setCurrentSong(index);
   } catch (error) {
-    console.log(error);
+    console.log("error inside playpause", message.error);
   }
 };
 
@@ -269,7 +284,7 @@ React.useEffect(() => {
         <Text style={styles.artist}>{songs[songIndex].artist}</Text>
       </View>
 
-      <Controller onNext={goNext} onPrv={goPrv} onPlayPause={playSound} />
+      <Controller onNext={goNext} onPrv={goPrv} onPlayPause={playSound} isPlaying={isPlaying}/>
       
     </SafeAreaView>
   );
