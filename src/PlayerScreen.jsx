@@ -39,18 +39,18 @@ export default function PlayerScreen() {
   //   }, [currentSong]);
 
   ///////////////////////////////////////////////////////////
-  const [sound, setSound] = useState();
-  const playPause = async () => {
-    // try {
-    //   if (isPlaying) {
-    //     await soundObject.current.pauseAsync();
-    //   } else {
-    //     await soundObject.current.playAsync();
-    //   }
-    //   setIsPlaying(!isPlaying);
-    // } catch (error) {
-    //   console.log(error);
-    // }
+const [sound, setSound] = useState();
+const playPause = async () => {
+  // try {
+  //   if (isPlaying) {
+  //     await soundObject.current.pauseAsync();
+  //   } else {
+  //     await soundObject.current.playAsync();
+  //   }
+  //   setIsPlaying(!isPlaying);
+  // } catch (error) {
+  //   console.log(error);
+  // }
 
 
     const { sound: audioSound } = await Audio.Sound.createAsync(songs[songIndex].url);
@@ -64,25 +64,25 @@ export default function PlayerScreen() {
         await audioSound.playAsync();
       }
 
-      // await audioSound.playAsync();
-      setIsPlaying(!isPlaying);
-      // setCurrentSong(index);
-    } catch (error) {
-      console.log("error inside playpause", message.error);
+    // await audioSound.playAsync();
+    setIsPlaying(!isPlaying);
+    // setCurrentSong(index);
+  } catch (error) {
+    console.log("error inside playpause", message.error);
+  }
+};
+
+
+useEffect(() => {
+  return sound
+    ? () => {
+      console.log('Unloading Sound');
+      sound.unloadAsync();
     }
-  };
+    : undefined;
+}, [sound]);
 
-
-  useEffect(() => {
-    return sound
-      ? () => {
-        console.log('Unloading Sound');
-        sound.unloadAsync();
-      }
-      : undefined;
-  }, [sound]);
-
-  ////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
   // const playPause = async () => {
   //   try {
   //     if (isPlaying) {
@@ -96,9 +96,9 @@ export default function PlayerScreen() {
   //   }
   // };
   useEffect(() => {
-    if (isPlaying) (
-      playPause()
-    );
+      if (isPlaying) (
+        playPause()
+        );
     //     try {
     //       await sound.playAsync();
     //     } catch (error) {
@@ -106,9 +106,9 @@ export default function PlayerScreen() {
     //     }
     //   }
     // };
-
+  
   }, [songIndex]);
-
+  
 
   useEffect(() => {
     // position.addListener(({ value }) => {
@@ -118,9 +118,7 @@ export default function PlayerScreen() {
     scrollX.addListener(({ value }) => {
       const val = Math.round(value / width);
 
-      if (val !== songIndex) {
-        setSongIndex(val);
-      }
+      setSongIndex(val);
     });
 
 
@@ -146,21 +144,19 @@ export default function PlayerScreen() {
 
 
   const goNext = async () => {
-    const nextIndex =
-      songIndex === songs.length - 1 ? 0 : (songIndex + 1); // % songs.length;
-
     slider.current.scrollToOffset({
-      offset: (nextIndex) * width,
+      offset: (songIndex + 1) * width,
     });
-
+  
     try {
       if (sound) {
         await sound.unloadAsync();
         setIsPlaying(false);
       }
-
-
-
+  
+      const nextIndex = 
+      songIndex === songs.length - 1 ? 0 : (songIndex + 1); // % songs.length;
+  
       setCurrentSong(nextIndex);
       const { sound: audioSound } = await Audio.Sound.createAsync(
         songs[nextIndex].url
@@ -168,30 +164,28 @@ export default function PlayerScreen() {
       setSound(audioSound);
 
       if (isPlaying) (
-        await audioSound.playAsync(),
-        setIsPlaying(true)
+      await audioSound.playAsync(),
+      setIsPlaying(true)
       );
     } catch (error) {
       console.log(error);
     }
   };
-
+  
   const goPrv = async () => {
-    const prevIndex =
-      songIndex === 0 ? songs.length - 1 : (songIndex - 1); // % songs.length;
-
     slider.current.scrollToOffset({
-      offset: (prevIndex) * width,
+      offset: (songIndex - 1) * width,
     });
-
+  
     try {
       if (sound) {
         await sound.unloadAsync();
         setIsPlaying(false);
       }
-
-
-
+  
+      const prevIndex =
+        songIndex === 0 ? songs.length - 1 : (songIndex - 1); // % songs.length;
+  
       setCurrentSong(prevIndex);
       const { sound: audioSound } = await Audio.Sound.createAsync(
         songs[prevIndex].url
@@ -199,15 +193,15 @@ export default function PlayerScreen() {
       setSound(audioSound);
 
       if (isPlaying) (
-        await audioSound.playAsync(),
-        setIsPlaying(true)
+      await audioSound.playAsync(),
+      setIsPlaying(true)
       );
 
     } catch (error) {
       console.log(error);
     }
   };
-
+  
 
 
   // const goPrv = async () => {
@@ -284,8 +278,8 @@ export default function PlayerScreen() {
         <Text style={styles.artist}>{songs[songIndex].artist}</Text>
       </View>
 
-      <Controller onNext={goNext} onPrv={goPrv} onPlayPause={playPause} isPlaying={isPlaying} />
-
+      <Controller onNext={goNext} onPrv={goPrv} onPlayPause={playPause} isPlaying={isPlaying}/>
+      
     </SafeAreaView>
   );
 }
@@ -295,11 +289,13 @@ const styles = StyleSheet.create({
     fontSize: 28,
     textAlign: "center",
     textTransform: "capitalize",
+   marginTop: 20,
   },
   artist: {
     fontSize: 18,
     textAlign: "center",
     textTransform: "capitalize",
+    marginBottom: 20,
   },
   container: {
     justifyContent: "space-evenly",
