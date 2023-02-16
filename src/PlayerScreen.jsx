@@ -83,7 +83,7 @@ export default function PlayerScreen() {
   // for tranlating the album art
   const position = useRef(Animated.divide(scrollX, width)).current;
   const [isPlaying, setIsPlaying] = useState(false);
-  // const [currentSong, setCurrentSong] = useState(0);
+  const [currentSong, setCurrentSong] = useState(0);
   // const {soundObject} = useRef(Audio.Sound.createAsync());
   // console.log(soundObject.current);
 
@@ -227,7 +227,7 @@ React.useEffect(() => {
         }}
       >
         <Animated.Image
-          source={item.image}
+          source={item.artwork}
           style={{ width: 320, height: 320, borderRadius: 5 }}
         />
       </Animated.View>
@@ -279,5 +279,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-evenly",
     height: height,
     maxHeight: 500,
+  },
+  albumArt: {
+    width: 320,
+    height: 320,
   },
 });
