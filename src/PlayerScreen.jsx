@@ -40,7 +40,7 @@ export default function PlayerScreen() {
 
   ///////////////////////////////////////////////////////////
 const [sound, setSound] = useState();
-const playPause = async (index) => {
+const playPause = async () => {
   // try {
   //   if (isPlaying) {
   //     await soundObject.current.pauseAsync();
@@ -66,7 +66,7 @@ const playPause = async (index) => {
 
     // await audioSound.playAsync();
     setIsPlaying(!isPlaying);
-    setCurrentSong(index);
+    // setCurrentSong(index);
   } catch (error) {
     console.log("error inside playpause", message.error);
   }
