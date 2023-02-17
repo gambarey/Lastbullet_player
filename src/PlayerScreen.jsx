@@ -12,6 +12,7 @@ import {
 import songs from "./data";
 import Controller from "./Controller";
 import { Audio } from 'expo-av';
+import Slider from "@react-native-community/slider";
 
 const { width, height } = Dimensions.get("window");
 
@@ -20,6 +21,7 @@ export default function PlayerScreen() {
 
   const slider = useRef(null);
   const [songIndex, setSongIndex] = useState(0);
+  
 
   // for tranlating the album art
   const position = useRef(Animated.divide(scrollX, width)).current;
@@ -55,6 +57,8 @@ const playPause = async () => {
 
     const { sound: audioSound } = await Audio.Sound.createAsync(songs[songIndex].url);
     setSound(audioSound);
+    console.log(sound);
+    console.log(audioSound);
 
     try {
       if (isPlaying) {
@@ -81,6 +85,24 @@ useEffect(() => {
     }
     : undefined;
 }, [sound]);
+
+const [currentPosition, setCurrentPosition] = useState(0);
+// const context = useContext(AudioContext);
+// const { playbackPosition, playbackDuration, currentAudio } = sound;
+const playbackPosition = 0;
+const playbackDuration = songs[songIndex].duration;
+
+const calculateSeekBar = () => {
+  if (playbackPosition != null && playbackDuration != null) {
+    return playbackPosition / playbackDuration;
+  }
+
+  // if (currentAudio.lastPosition) {
+  //   return currentAudio.lastPosition / (currentAudio.duration * 1000);
+  // }
+
+  return 0;
+}
 
 ////////////////////////////////////////////////////////////////////
   // const playPause = async () => {
@@ -277,7 +299,31 @@ useEffect(() => {
         <Text style={styles.title}>{songs[songIndex].title}</Text>
         <Text style={styles.artist}>{songs[songIndex].artist}</Text>
       </View>
-
+      <Slider
+            style={{ width: width, height: 40 }}
+            minimumValue={0}
+            maximumValue={1}
+            value={calculateSeekBar()}
+            minimumTrackTintColor={"red"}
+            maximumTrackTintColor={"green"}
+            onValueChange={value => {
+              setCurrentPosition(
+                convertTime(value * currentAudio.duration));
+            }}
+            onSlidingStart={async () => {
+              if (!context.isPlaying)
+                return;
+              try {
+                await pause(context.playbackObj);
+              } catch (error) {
+                console.log("error inside onSlidingStart callback", error.message)
+              }
+            }}
+            onSlidingComplete={async value => {
+              await moveAudio(context, value);
+              setCurrentPosition(0);
+            }}
+          />
       <Controller onNext={goNext} onPrv={goPrv} onPlayPause={playPause} isPlaying={isPlaying}/>
       
     </SafeAreaView>
