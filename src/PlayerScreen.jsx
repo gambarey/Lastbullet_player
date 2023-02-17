@@ -299,6 +299,16 @@ const calculateSeekBar = () => {
         <Text style={styles.title}>{songs[songIndex].title}</Text>
         <Text style={styles.artist}>{songs[songIndex].artist}</Text>
       </View>
+      <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              paddingHorizontal: 15
+            }}
+          >
+            <Text>{songs[songIndex].duration}</Text>
+            {/* <Text>{currentPosition ? currentPosition : renderCurrentTime()}</Text> */}
+          </View>
       <Slider
             style={{ width: width, height: 40 }}
             minimumValue={0}
@@ -306,10 +316,10 @@ const calculateSeekBar = () => {
             value={calculateSeekBar()}
             minimumTrackTintColor={"red"}
             maximumTrackTintColor={"green"}
-            onValueChange={value => {
-              setCurrentPosition(
-                convertTime(value * currentAudio.duration));
-            }}
+            // onValueChange={value => {
+            //   setCurrentPosition(
+            //     convertTime(value * currentAudio.duration));
+            // }}
             onSlidingStart={async () => {
               if (!context.isPlaying)
                 return;
